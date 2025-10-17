@@ -7,9 +7,9 @@ pipeline {
     tools{
         maven 'apache-maven-3.9.5'
     }
-    options {
-  buildDiscarder logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '', daysToKeepStr: '5', numToKeepStr: '2')
-}
+    //options {
+  //buildDiscarder logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '', daysToKeepStr: '5', numToKeepStr: '2')
+//}
 
 
     stages {
@@ -33,4 +33,5 @@ stage('Deploy to tomcat') {
     }
 }
 }
+
 
