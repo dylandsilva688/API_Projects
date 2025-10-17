@@ -63,7 +63,7 @@
     <build>
         <plugins>
             <plugin>
-                finalName>App02</finalName>
+                <finalName>App02</finalName>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
