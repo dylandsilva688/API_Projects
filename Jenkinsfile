@@ -15,7 +15,7 @@ pipeline {
     stages {
         stage('Clone the repository') {
             steps {
-               git credentialsId: 'Github_username_password', url: 'https://github.com/dylandsilva688/API_Projects.git'
+               git credentialsId: 'Github_username_password', url: 'https://github.com/dylandsilva688/API_Projects.git/'
             }
         }
 
@@ -33,6 +33,7 @@ stage('Deploy to tomcat') {
     }
 }
 }
+
 
 
 
