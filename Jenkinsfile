@@ -1,8 +1,8 @@
 pipeline {
     agent any
-    triggers {
-  cron 'H/5 * * * *'
-}
+    //triggers {
+  //cron 'H/5 * * * *'
+//}
 
     tools{
         maven 'apache-maven-3.9.5'
@@ -33,3 +33,4 @@ stage('Deploy to tomcat') {
     }
 }
 }
+
