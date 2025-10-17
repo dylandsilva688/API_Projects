@@ -11,6 +11,7 @@
     <groupId>com.docubyte.test</groupId>
     <artifactId>App02</artifactId>
     <version>0.0.1-SNAPSHOT</version>
+    <packaging>war</packaging>      
     <name>App02</name>
     <description>App02</description>
     <url/>
