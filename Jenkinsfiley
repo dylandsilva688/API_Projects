@@ -7,7 +7,7 @@ pipeline {
     environment {
         // Customize these values
         WAR_NAME = "App02.war"
-        TOMCAT_HOME = "C:\Tomcat 9.0"
+        TOMCAT_HOME = "C:\\Tomcat 9.0"
     }
     
     tools{
@@ -40,6 +40,7 @@ stage('Deploy to tomcat') {
     }
 }
 }
+
 
 
 
