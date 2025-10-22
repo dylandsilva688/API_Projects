@@ -6,7 +6,7 @@ pipeline {
 
     environment {
         // Customize these values
-        WAR_NAME = "yourapp.war"
+        WAR_NAME = "App02.war"
         TOMCAT_HOME = "/opt/tomcat9"
     }
     
@@ -40,6 +40,7 @@ stage('Deploy to tomcat') {
     }
 }
 }
+
 
 
 
