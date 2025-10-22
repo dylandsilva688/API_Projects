@@ -28,9 +28,10 @@ pipeline {
 
         stage('Build the maven code') {
             steps {
-            echo "Running Maven clean and package"
-            sh 'mvn clean install'
-                 }
+                dir('API_Projects') {   // Move into the correct subdirectory
+                    bat 'mvn clean package'
+                }
+            }
     }
 
 stage('Deploy to tomcat') {
@@ -40,6 +41,7 @@ stage('Deploy to tomcat') {
     }
 }
 }
+
 
 
 
