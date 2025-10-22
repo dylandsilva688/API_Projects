@@ -4,6 +4,12 @@ pipeline {
   //cron 'H/5 * * * *'
 //}
 
+    environment {
+        // Customize these values
+        WAR_NAME = "yourapp.war"
+        TOMCAT_HOME = "/opt/tomcat9"
+    }
+    
     tools{
         maven 'apache-maven-3.9.5'
     }
@@ -22,6 +28,7 @@ pipeline {
 
         stage('Build the maven code') {
             steps {
+            echo "Running Maven clean and package"
             sh 'mvn clean install'
                  }
     }
@@ -33,6 +40,7 @@ stage('Deploy to tomcat') {
     }
 }
 }
+
 
 
 
