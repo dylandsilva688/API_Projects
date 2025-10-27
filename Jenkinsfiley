@@ -27,7 +27,6 @@ pipeline {
             steps {
                 bat """
                     echo Deploying ${WAR_NAME} to Tomcat...
-                    xcopy /Y "target\App02.war" "%TOMCAT_HOME%\webapps\"
 
                     REM Stop Tomcat
                     "%TOMCAT_HOME%\\\\bin\\\\catalina.bat" stop
@@ -46,6 +45,7 @@ pipeline {
         }
     }
 }
+
 
 
 
