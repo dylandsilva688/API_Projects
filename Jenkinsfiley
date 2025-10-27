@@ -33,36 +33,22 @@ pipeline {
 
         stage('Deploy to Tomcat') {
             steps {
-                bat '''
-                    echo ========== DEPLOYING TO TOMCAT ==========
-                    
-                    REM Kill any running Tomcat process
-                    taskkill /F /IM java.exe || echo Tomcat not running
+                bat """
+                    echo Stopping Tomcat...
+                    net stop Tomcat9
 
-                    REM Remove old WAR and exploded app folder
-                    if exist "%TOMCAT_HOME%\\webapps\\App02.war" del /Q "%TOMCAT_HOME%\\webapps\\App02.war"
-                    if exist "%TOMCAT_HOME%\\webapps\\App02" rmdir /S /Q "%TOMCAT_HOME%\\webapps\\App02"
+                    echo Removing old deployment...
+                    del /Q "%TOMCAT_HOME%\\webapps\\App02.war"
+                    rmdir /S /Q "%TOMCAT_HOME%\\webapps\\App02"
 
-                    REM Copy new WAR file to Tomcat webapps directory
-                    if exist "target\\%WAR_NAME%" (
-                        xcopy /Y "target\\%WAR_NAME%" "%TOMCAT_HOME%\\webapps\\"
-                        echo WAR copied successfully.
-                    ) else (
-                        echo ERROR: WAR file not found in target folder!
-                        exit /b 1
-                    )
+                    echo Copying new WAR...
+                    xcopy /Y "target\\App02.war" "%TOMCAT_HOME%\\webapps\\"
 
-                    REM Start Tomcat
-                    start "" "%TOMCAT_HOME%\\bin\\startup.bat"
-
-                    REM Wait 10 seconds to allow Tomcat to start
-                    ping 127.0.0.1 -n 10 >nul
-
-                    echo ========== DEPLOYMENT COMPLETE ==========
-                '''
+                    echo Starting Tomcat...
+                    net start Tomcat9
+                  """
             }
         }
-    }
 
     post {
         success {
@@ -73,6 +59,7 @@ pipeline {
         }
     }
 }
+
 
 
 
