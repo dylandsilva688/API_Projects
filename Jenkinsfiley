@@ -2,13 +2,11 @@ pipeline {
     agent any
 
     environment {
-        // ✅ Adjust these as needed
         WAR_NAME = "App02.war"
         TOMCAT_HOME = "C:\\Tomcat 9.0"
     }
 
     tools {
-        // ✅ Make sure you configured Maven in Jenkins Global Tool Configuration as "Maven3"
         maven 'apache-maven-3.9.5'
     }
 
@@ -34,8 +32,8 @@ pipeline {
         stage('Deploy to Tomcat') {
             steps {
                 bat """
-                    echo Stopping Tomcat...
-                    net stop Tomcat9
+                    echo Stopping Tomcat (if running)...
+                    call "%TOMCAT_HOME%\\bin\\shutdown.bat" || echo Tomcat not running
 
                     echo Removing old deployment...
                     del /Q "%TOMCAT_HOME%\\webapps\\App02.war"
@@ -45,27 +43,12 @@ pipeline {
                     xcopy /Y "target\\App02.war" "%TOMCAT_HOME%\\webapps\\"
 
                     echo Starting Tomcat...
-                    net start Tomcat9
-                  """
+                    call "%TOMCAT_HOME%\\bin\\startup.bat"
+                """
             }
         }
+    }
 }
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
