@@ -1,63 +1,50 @@
 pipeline {
     agent any
-    //triggers {
-  //cron 'H/5 * * * *'
-//}
 
     environment {
-        // Customize these values
         WAR_NAME = "App02.war"
         TOMCAT_HOME = "C:\\Tomcat 9.0"
     }
-    
-    tools{
+
+    tools {
         maven 'apache-maven-3.9.5'
     }
-    //options {
-  //buildDiscarder logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '', daysToKeepStr: '5', numToKeepStr: '2')
-//}
-
 
     stages {
         stage('Clone the repository') {
             steps {
-               git branch: 'main', credentialsId: 'Github_username_password', url: 'https://github.com/dylandsilva688/API_Projects.git'
+                git branch: 'main', credentialsId: 'Github_username_password', url: 'https://github.com/dylandsilva688/API_Projects.git'
             }
         }
 
-
-        stage('Build the maven code') {
+        stage('Build the Maven code') {
             steps {
-                //dir('API_Projects') {    Move into the correct subdirectory
-                    sh 'mvn clean package'
-                //}
+                bat 'mvn clean package'
             }
+        }
+
+        stage('Deploy to Tomcat') {
+            steps {
+                bat """
+                    echo Deploying ${WAR_NAME} to Tomcat...
+
+                    REM Stop Tomcat
+                    "%TOMCAT_HOME%\\\\bin\\\\catalina.bat" stop
+
+                    REM Remove old WAR and exploded folder
+                    del /Q "%TOMCAT_HOME%\\\\webapps\\\\${WAR_NAME}"
+                    rmdir /S /Q "%TOMCAT_HOME%\\\\webapps\\\\App02"
+
+                    REM Copy new WAR from Maven target
+                    xcopy /Y "target\\\\${WAR_NAME}" "%TOMCAT_HOME%\\\\webapps\\\\"
+
+                    REM Start Tomcat
+                    "%TOMCAT_HOME%\\\\bin\\\\catalina.bat" start
+                """
+            }
+        }
     }
-
-stage('Deploy to Tomcat') {
-    steps {
-        // Make sure TOMCAT_HOME is set in Jenkins (e.g., C:\Tomcat 9.0)
-        bat """
-            echo Deploying App02.war to Tomcat...
-            
-            REM Stop Tomcat service
-            net stop Tomcat9
-
-            REM Remove old WAR and exploded folder
-            del /Q "%TOMCAT_HOME%\\webapps\\App02.war"
-            rmdir /S /Q "%TOMCAT_HOME%\\webapps\\App02"
-
-            REM Copy new WAR from Maven target
-            xcopy /Y "target\\App02.war" "%TOMCAT_HOME%\\webapps\\"
-
-            REM Start Tomcat service
-            net start Tomcat9
-        """
-    }
 }
-}
-}
-
 
 
 
