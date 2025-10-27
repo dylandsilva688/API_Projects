@@ -26,25 +26,34 @@ pipeline {
         stage('Deploy to Tomcat') {
             steps {
                 bat """
-                    echo Deploying ${WAR_NAME} to Tomcat...
+                echo Deploying ${WAR_NAME} to Tomcat...
 
-                    REM Stop Tomcat
-                    "%TOMCAT_HOME%\\\\bin\\\\catalina.bat" stop
+                REM Stop Tomcat service
+                net stop Tomcat9
 
-                    REM Remove old WAR and exploded folder
-                    del /Q "%TOMCAT_HOME%\\\\webapps\\\\${WAR_NAME}"
-                    rmdir /S /Q "%TOMCAT_HOME%\\\\webapps\\\\App02"
+                REM Remove old WAR and exploded folder if they exist
+                if exist "%TOMCAT_HOME%\\webapps\\${WAR_NAME}" del /Q "%TOMCAT_HOME%\\webapps\\${WAR_NAME}"
+                if exist "%TOMCAT_HOME%\\webapps\\App02" rmdir /S /Q "%TOMCAT_HOME%\\webapps\\App02"
 
-                    REM Copy new WAR from Maven target
-                    xcopy /Y "target\\\\${WAR_NAME}" "%TOMCAT_HOME%\\\\webapps\\\\"
+                REM Copy new WAR from Maven target
+                if exist "target\\${WAR_NAME}" (
+                xcopy /Y "target\\${WAR_NAME}" "%TOMCAT_HOME%\\webapps\\"
+                ) else (
+                    echo ERROR: WAR file not found!
+                    exit /b 1
+                )
 
-                    REM Start Tomcat
-                    "%TOMCAT_HOME%\\\\bin\\\\catalina.bat" start
+                REM Start Tomcat service
+                net start Tomcat9
+
+                REM Optional: wait 10 seconds to let Tomcat deploy
+                timeout /t 10
                 """
             }
         }
     }
 }
+
 
 
 
