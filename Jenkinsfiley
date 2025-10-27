@@ -30,7 +30,7 @@ pipeline {
             steps {
                 //dir('API_Projects') {    Move into the correct subdirectory
                     sh 'mvn clean package'
-                }
+                //}
             }
     }
 
@@ -48,6 +48,7 @@ stage('Deploy to tomcat') {
     }
 }
 }
+
 
 
 
