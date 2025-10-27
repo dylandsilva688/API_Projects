@@ -2,55 +2,42 @@ pipeline {
     agent any
 
     environment {
-        WAR_NAME = "App02.war"
         TOMCAT_HOME = "C:\\Tomcat 9.0"
-    }
-
-    tools {
-        maven 'apache-maven-3.9.5'
+        MAVEN_HOME = "C:\\Program Files\\Apache\\maven-3.9.5"
     }
 
     stages {
-        stage('Clone the repository') {
+        stage('Checkout SCM') {
             steps {
-                git branch: 'main',
-                    credentialsId: 'Github_username_password',
-                    url: 'https://github.com/dylandsilva688/API_Projects.git'
+                git url: 'https://github.com/dylandsilva688/API_Projects.git', credentialsId: 'Github_username_password'
             }
         }
 
-        stage('Build the Maven code') {
+        stage('Build Maven Project') {
             steps {
-                bat 'mvn clean package'
+                bat "\"${MAVEN_HOME}\\bin\\mvn\" clean package"
             }
         }
 
         stage('Deploy to Tomcat') {
             steps {
-                bat """
-                    echo Deploying ${WAR_NAME} to Tomcat...
+                script {
+                    echo "Stopping Tomcat if running..."
+                    bat 'taskkill /F /IM java.exe || echo Tomcat not running'
 
-                    REM Stop Tomcat (kill Java processes if running)
-                    taskkill /F /IM java.exe || echo Tomcat not running
+                    echo "Deleting old WAR and exploded folder..."
+                    bat "if exist \"${TOMCAT_HOME}\\webapps\\App02.war\" del /Q \"${TOMCAT_HOME}\\webapps\\App02.war\""
+                    bat "if exist \"${TOMCAT_HOME}\\webapps\\App02\" rmdir /S /Q \"${TOMCAT_HOME}\\webapps\\App02\""
 
-                    REM Remove old WAR and exploded folder
-                    if exist "${TOMCAT_HOME}\\webapps\\${WAR_NAME}" del /Q "${TOMCAT_HOME}\\webapps\\${WAR_NAME}"
-                    if exist "${TOMCAT_HOME}\\webapps\\App02" rmdir /S /Q "${TOMCAT_HOME}\\webapps\\App02"
+                    echo "Copying new WAR to Tomcat..."
+                    bat "copy /Y target\\App02.war ${TOMCAT_HOME}\\webapps\\"
 
-                    REM Copy new WAR from Maven target
-                    if exist "target\\${WAR_NAME}" (
-                        xcopy /Y "target\\${WAR_NAME}" "${TOMCAT_HOME}\\webapps\\"
-                    ) else (
-                        echo ERROR: WAR file not found!
-                        exit /b 1
-                    )
+                    echo "Starting Tomcat..."
+                    bat "start \"\" \"${TOMCAT_HOME}\\bin\\startup.bat\""
 
-                    REM Start Tomcat
-                    start "" "${TOMCAT_HOME}\\bin\\startup.bat"
-
-                    REM Wait for 10 seconds to let Tomcat deploy
-                    ping 127.0.0.1 -n 10 > nul
-                """
+                    echo "Waiting 15 seconds for deployment..."
+                    bat "ping 127.0.0.1 -n 15 > nul"
+                }
             }
         }
     }
