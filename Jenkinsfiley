@@ -34,20 +34,30 @@ pipeline {
             }
     }
 
-stage('Deploy to tomcat') {
-            steps {
-            deploy adapters: [tomcat9(alternativeDeploymentContext: '', credentialsId: '735a5106-4896-4c24-868a-56aaf0cd291c', path: '', url: 'http://localhost:8181/App02/')], contextPath: '', war: '**/*.war'
-            bat '''
-                    net stop Tomcat9
-                    del "%TOMCAT_HOME%\\webapps\\App02.war"
-                    rmdir /S /Q "%TOMCAT_HOME%\\webapps\\App02"
-                    xcopy /Y API_Projects\\target\\api-projects.war "%TOMCAT_HOME%\\webapps\\"
-                    net start Tomcat9
-                '''
-            }
+stage('Deploy to Tomcat') {
+    steps {
+        // Make sure TOMCAT_HOME is set in Jenkins (e.g., C:\Tomcat 9.0)
+        bat """
+            echo Deploying App02.war to Tomcat...
+            
+            REM Stop Tomcat service
+            net stop Tomcat9
+
+            REM Remove old WAR and exploded folder
+            del /Q "%TOMCAT_HOME%\\webapps\\App02.war"
+            rmdir /S /Q "%TOMCAT_HOME%\\webapps\\App02"
+
+            REM Copy new WAR from Maven target
+            xcopy /Y "target\\App02.war" "%TOMCAT_HOME%\\webapps\\"
+
+            REM Start Tomcat service
+            net start Tomcat9
+        """
     }
 }
 }
+}
+
 
 
 
