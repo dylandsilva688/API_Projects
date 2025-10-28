@@ -72,7 +72,7 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <mainClass>com.docubyte.test.App02Application</mainClass> <!-- adjust to your main class -->
+                    <mainClass>com.docubyte.test.app02.App02Application</mainClass> <!-- adjust to your main class -->
                 </configuration>
             </plugin>
         </plugins>
