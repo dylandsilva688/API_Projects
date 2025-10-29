@@ -37,25 +37,32 @@ pipeline {
             steps {
                 bat """
                     echo ===========================
-                    echo Stopping Tomcat (via catalina.bat)...
+                    echo Setting Tomcat Environment...
                     echo ===========================
-                    call "%TOMCAT_HOME%\\bin\\shutdown.bat" || echo Tomcat not running
+                    set CATALINA_HOME=%TOMCAT_HOME%
+                    set JAVA_HOME=%JAVA_HOME%
+                    set PATH=%JAVA_HOME%\\bin;%CATALINA_HOME%\\bin;%PATH%
+
+                    echo ===========================
+                    echo Stopping Tomcat...
+                    echo ===========================
+                    call "%CATALINA_HOME%\\bin\\shutdown.bat" || echo Tomcat not running
 
                     echo ===========================
                     echo Removing old deployment...
                     echo ===========================
-                    if exist "%TOMCAT_HOME%\\webapps\\App02.war" del /Q "%TOMCAT_HOME%\\webapps\\App02.war"
-                    if exist "%TOMCAT_HOME%\\webapps\\App02" rmdir /S /Q "%TOMCAT_HOME%\\webapps\\App02"
+                    if exist "%CATALINA_HOME%\\webapps\\App02.war" del /Q "%CATALINA_HOME%\\webapps\\App02.war"
+                    if exist "%CATALINA_HOME%\\webapps\\App02" rmdir /S /Q "%CATALINA_HOME%\\webapps\\App02"
 
                     echo ===========================
                     echo Copying new WAR file...
                     echo ===========================
-                    copy /Y "target\\App02.war" "%TOMCAT_HOME%\\webapps\\"
+                    copy /Y "target\\App02.war" "%CATALINA_HOME%\\webapps\\"
 
                     echo ===========================
-                    echo Starting Tomcat (via catalina.bat)...
+                    echo Starting Tomcat...
                     echo ===========================
-                    start "" "%TOMCAT_HOME%\\bin\\startup.bat"
+                    call "%CATALINA_HOME%\\bin\\startup.bat"
                 """
             }
         }
@@ -70,6 +77,7 @@ pipeline {
         }
     }
 }
+
 
 
 
