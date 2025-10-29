@@ -2,8 +2,11 @@ pipeline {
     agent any
 
     environment {
-        WAR_NAME = "App02.war"
-        TOMCAT_HOME = "C:\\Tomcat 9.0"
+        WAR_NAME      = "App02.war"
+        APP_NAME      = "App02"
+        TOMCAT_HOME   = "C:\\Tomcat 9.0"
+        JAVA_HOME     = "C:\\Java17\\jdk-17"
+        PATH          = "${env.PATH};${env.JAVA_HOME}\\bin;${env.TOMCAT_HOME}\\bin"
     }
 
     tools {
@@ -11,7 +14,6 @@ pipeline {
     }
 
     stages {
-
         stage('Checkout SCM') {
             steps {
                 git branch: 'main', 
@@ -23,7 +25,9 @@ pipeline {
         stage('Build Maven Project') {
             steps {
                 bat '''
+                    echo ===========================
                     echo Building the WAR file...
+                    echo ===========================
                     mvn clean package -DskipTests
                 '''
             }
@@ -31,21 +35,57 @@ pipeline {
 
         stage('Deploy to Tomcat') {
             steps {
-                bat """
-                    echo Stopping Tomcat (if running)...
-                    call "%TOMCAT_HOME%\\bin\\shutdown.bat" || echo Tomcat not running
+                script {
+                    try {
+                        bat '''
+                            echo ===========================
+                            echo Stopping Tomcat (if running)...
+                            echo ===========================
+                            call "%TOMCAT_HOME%\\bin\\shutdown.bat" || echo Tomcat not running
 
-                    echo Removing old deployment...
-                    del /Q "%TOMCAT_HOME%\\webapps\\App02.war"
-                    rmdir /S /Q "%TOMCAT_HOME%\\webapps\\App02"
+                            echo ===========================
+                            echo Removing old deployment...
+                            echo ===========================
+                            if exist "%TOMCAT_HOME%\\webapps\\%APP_NAME%.war" del /Q "%TOMCAT_HOME%\\webapps\\%APP_NAME%.war"
+                            if exist "%TOMCAT_HOME%\\webapps\\%APP_NAME%" rmdir /S /Q "%TOMCAT_HOME%\\webapps\\%APP_NAME%"
 
-                    echo Copying new WAR...
-                    xcopy /Y "target\\App02.war" "%TOMCAT_HOME%\\webapps\\"
+                            echo ===========================
+                            echo Copying new WAR file...
+                            echo ===========================
+                            copy "target\\%WAR_NAME%" "%TOMCAT_HOME%\\webapps\\%WAR_NAME%" /Y
 
-                    echo Starting Tomcat...
-                    call "%TOMCAT_HOME%\\bin\\startup.bat"
-                """
+                            if %ERRORLEVEL% NEQ 0 (
+                                echo ❌ Failed to copy WAR file!
+                                exit /b 1
+                            )
+
+                            echo ===========================
+                            echo Starting Tomcat...
+                            echo ===========================
+                            call "%TOMCAT_HOME%\\bin\\startup.bat"
+
+                            if %ERRORLEVEL% EQU 0 (
+                                echo ✅ Deployment completed successfully!
+                            ) else (
+                                echo ❌ Tomcat failed to start!
+                                exit /b 1
+                            )
+                        '''
+                    } catch (err) {
+                        echo "❌ Deployment failed: ${err}"
+                        error("Deployment failed: ${err}")
+                    }
+                }
             }
+        }
+    }
+
+    post {
+        success {
+            echo '✅ Build and deployment completed successfully.'
+        }
+        failure {
+            echo '❌ Build or deployment failed. Check the console output for details.'
         }
     }
 }
