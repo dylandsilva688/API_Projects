@@ -66,16 +66,16 @@
 
     <build>
         <finalName>App02</finalName>
-        <plugins>
-            <!-- Spring Boot Maven Plugin for packaging WAR -->
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-                <configuration>
-                    <mainClass>com.docubyte.test.app02.App02Application</mainClass> <!-- adjust to your main class -->
-                </configuration>
-            </plugin>
-        </plugins>
+            <plugins>
+                <plugin>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-maven-plugin</artifactId>
+                    <configuration>
+                        <mainClass>com.docubyte.test.app02.App02Application</mainClass>
+                        <skip>true</skip> <!-- ensures WAR is not repackaged into executable -->
+                    </configuration>
+                </plugin>
+            </plugins>
     </build>
 
     <distributionManagement>
