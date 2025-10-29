@@ -2,12 +2,10 @@ pipeline {
     agent any
 
     environment {
-        WAR_NAME      = "App02.war"
-        APP_NAME      = "App02"
-        TOMCAT_HOME   = "C:\\Tomcat 9.0"
-        TOMCAT_SERVICE = "Tomcat9"     // 👈 Adjust if your Windows service has a different name
-        JAVA_HOME     = "C:\\Java17\\jdk-17"
-        PATH          = "${env.PATH};${env.JAVA_HOME}\\bin"
+        WAR_NAME = "App02.war"
+        TOMCAT_HOME = "C:\\Tomcat 9.0"
+        JAVA_HOME = "C:\\Program Files\\Java\\jdk-17"  // Update to your JDK path
+        PATH = "${env.JAVA_HOME}\\bin;${env.TOMCAT_HOME}\\bin;${env.PATH}"
     }
 
     tools {
@@ -18,8 +16,8 @@ pipeline {
 
         stage('Checkout SCM') {
             steps {
-                git branch: 'main',
-                    credentialsId: 'Github_username_password',
+                git branch: 'main', 
+                    credentialsId: 'Github_username_password', 
                     url: 'https://github.com/dylandsilva688/API_Projects.git'
             }
         }
@@ -35,64 +33,43 @@ pipeline {
             }
         }
 
-        stage('Deploy to Tomcat (Service)') {
+        stage('Deploy to Tomcat') {
             steps {
-                script {
-                    try {
-                        bat '''
-                            echo ===========================
-                            echo Stopping Tomcat service...
-                            echo ===========================
-                            net stop "%TOMCAT_SERVICE%" || echo Tomcat service not running
+                bat """
+                    echo ===========================
+                    echo Stopping Tomcat (via catalina.bat)...
+                    echo ===========================
+                    call "%TOMCAT_HOME%\\bin\\shutdown.bat" || echo Tomcat not running
 
-                            echo ===========================
-                            echo Removing old deployment...
-                            echo ===========================
-                            if exist "%TOMCAT_HOME%\\webapps\\%APP_NAME%.war" del /Q "%TOMCAT_HOME%\\webapps\\%APP_NAME%.war"
-                            if exist "%TOMCAT_HOME%\\webapps\\%APP_NAME%" rmdir /S /Q "%TOMCAT_HOME%\\webapps\\%APP_NAME%"
+                    echo ===========================
+                    echo Removing old deployment...
+                    echo ===========================
+                    if exist "%TOMCAT_HOME%\\webapps\\App02.war" del /Q "%TOMCAT_HOME%\\webapps\\App02.war"
+                    if exist "%TOMCAT_HOME%\\webapps\\App02" rmdir /S /Q "%TOMCAT_HOME%\\webapps\\App02"
 
-                            echo ===========================
-                            echo Copying new WAR file...
-                            echo ===========================
-                            copy "target\\%WAR_NAME%" "%TOMCAT_HOME%\\webapps\\%WAR_NAME%" /Y
+                    echo ===========================
+                    echo Copying new WAR file...
+                    echo ===========================
+                    copy /Y "target\\App02.war" "%TOMCAT_HOME%\\webapps\\"
 
-                            if %ERRORLEVEL% NEQ 0 (
-                                echo ❌ Failed to copy WAR file!
-                                exit /b 1
-                            )
-
-                            echo ===========================
-                            echo Starting Tomcat service...
-                            echo ===========================
-                            net start "%TOMCAT_SERVICE%"
-
-                            if %ERRORLEVEL% EQU 0 (
-                                echo ✅ Deployment completed successfully!
-                            ) else (
-                                echo ❌ Tomcat service failed to start!
-                                exit /b 1
-                            )
-                        '''
-                    } catch (err) {
-                        echo "❌ Deployment failed: ${err}"
-                        error("Deployment failed: ${err}")
-                    }
-                }
+                    echo ===========================
+                    echo Starting Tomcat (via catalina.bat)...
+                    echo ===========================
+                    start "" "%TOMCAT_HOME%\\bin\\startup.bat"
+                """
             }
         }
     }
-
+    
     post {
         success {
-            echo '✅ Build and deployment completed successfully.'
+            echo '✅ Deployment completed successfully!'
         }
         failure {
-            echo '❌ Build or deployment failed. Check console output for details.'
+            echo '❌ Deployment failed. Check console output for details.'
         }
     }
 }
-
-
 
 
 
