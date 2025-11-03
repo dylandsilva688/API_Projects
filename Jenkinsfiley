@@ -64,6 +64,18 @@ pipeline {
                     echo ===========================
                     call "%CATALINA_HOME%\\bin\\startup.bat"
                 """
+
+                deploy adapters: [
+                    tomcat9(
+                        alternativeDeploymentContext: '',
+                        credentialsId: '735a5106-4896-4c24-868a-56aaf0cd291c',
+                        path: '',
+                        url: 'http://localhost:8181'
+                    )
+                ],
+                contextPath: '/App02',
+                war: '**/*.war'
+            
             }
         }
     }
@@ -77,6 +89,7 @@ pipeline {
         }
     }
 }
+
 
 
 
