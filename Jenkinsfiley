@@ -1,12 +1,12 @@
 pipeline {
     agent any
 
-    environment {
-        WAR_NAME = "App02.war"
-        TOMCAT_HOME = "C:\\Tomcat 9.0"
-        JAVA_HOME = "C:\\Java17\\jdk-17"  // Update to your JDK path
-        PATH = "${env.JAVA_HOME}\\bin;${env.TOMCAT_HOME}\\bin;${env.PATH}"
-    }
+    //environment {
+        //WAR_NAME = "App02.war"
+        //TOMCAT_HOME = "C:\\Tomcat 9.0"
+        //JAVA_HOME = "C:\\Java17\\jdk-17"  // Update to your JDK path
+        //PATH = "${env.JAVA_HOME}\\bin;${env.TOMCAT_HOME}\\bin;${env.PATH}"
+    //}
 
     tools {
         maven 'apache-maven-3.9.5'
@@ -35,35 +35,35 @@ pipeline {
 
         stage('Deploy to Tomcat') {
             steps {
-                bat """
-                    echo ===========================
-                    echo Setting Tomcat Environment...
-                    echo ===========================
-                    set CATALINA_HOME=%TOMCAT_HOME%
-                    set JAVA_HOME=%JAVA_HOME%
-                    set PATH=%JAVA_HOME%\\bin;%CATALINA_HOME%\\bin;%PATH%
+                //bat """
+                    //echo ===========================
+                    //echo Setting Tomcat Environment...
+                    //echo ===========================
+                    //set CATALINA_HOME=%TOMCAT_HOME%
+                    //set JAVA_HOME=%JAVA_HOME%
+                    //set PATH=%JAVA_HOME%\\bin;%CATALINA_HOME%\\bin;%PATH%
 
-                    echo ===========================
-                    echo Stopping Tomcat...
-                    echo ===========================
-                    call "%CATALINA_HOME%\\bin\\shutdown.bat" || echo Tomcat not running
+                    //echo ===========================
+                    //echo Stopping Tomcat...
+                    //echo ===========================
+                    //call "%CATALINA_HOME%\\bin\\shutdown.bat" || echo Tomcat not running
 
-                    echo ===========================
-                    echo Removing old deployment...
-                    echo ===========================
-                    if exist "%CATALINA_HOME%\\webapps\\App02.war" del /Q "%CATALINA_HOME%\\webapps\\App02.war"
+                    //echo ===========================
+                    //echo Removing old deployment...
+                    //echo ===========================
+                    //if exist "%CATALINA_HOME%\\webapps\\App02.war" del /Q "%CATALINA_HOME%\\webapps\\App02.war"
                     if exist "%CATALINA_HOME%\\webapps\\App02" rmdir /S /Q "%CATALINA_HOME%\\webapps\\App02"
 
-                    echo ===========================
-                    echo Copying new WAR file...
-                    echo ===========================
-                    copy /Y "target\\App02.war" "%CATALINA_HOME%\\webapps\\"
+                    //echo ===========================
+                    //echo Copying new WAR file...
+                    //echo ===========================
+                    //copy /Y "target\\App02.war" "%CATALINA_HOME%\\webapps\\"
 
-                    echo ===========================
-                    echo Starting Tomcat...
-                    echo ===========================
-                    call "%CATALINA_HOME%\\bin\\startup.bat"
-                """
+                    //echo ===========================
+                    //echo Starting Tomcat...
+                    //echo ===========================
+                    //call "%CATALINA_HOME%\\bin\\startup.bat"
+                //"""
 
                 deploy adapters: [
                     tomcat9(
@@ -89,6 +89,7 @@ pipeline {
         }
     }
 }
+
 
 
 
